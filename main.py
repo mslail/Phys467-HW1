@@ -15,7 +15,8 @@ def main(data_file, json_file):
     data = open(data_file, 'r')
     json_data =  open(json_file, 'r')
     config = json.load(json_data)
-
+    json_data.close()
+    # Reading Data
     X = []
     y = []
     for line in data:
@@ -25,12 +26,15 @@ def main(data_file, json_file):
         # BIAS
         r[0] = 1
         X.append(r)
+    data.close()
     X = np.array(X,dtype=float)
     y = np.array(y,dtype=float).transpose()
     Xt = X.transpose()
     
-    w_anayltic = dot(dot(inv(dot(Xt, X)), Xt), y)
+    # Calculating analytic solution 
+    w_analytic = dot(dot(inv(dot(Xt, X)), Xt), y)
 
+    # Calculating SGD solution
     M, N = X.shape
     w_sgd = np.ones(N, dtype=float)
     alpha = config['learning rate']
@@ -44,16 +48,14 @@ def main(data_file, json_file):
         w_sgd += alpha*(yi-dot(w_sgd.transpose(), xi))*xi
         n += 1
 
-    output = np.concatenate((w_anayltic, [""], w_sgd), axis=0)
+    output = np.concatenate((w_analytic, [""], w_sgd), axis=0)
     create_output(data_file.replace('in', 'out'), output)
-
 
 if __name__ == "__main__":
     try:
-        files = sys.argv
-        data_file = files[1]
-        json_file = files[2]
+        data_file = sys.argv[1]
+        json_file = sys.argv[2]
         main(data_file, json_file)
     except Exception as e:
-        raise Exception('Error: {}'.format(e))
+        raise e
    
